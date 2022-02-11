@@ -31,12 +31,6 @@ var wallsHList = [40, 40, 80, 40, 40,
 var score = 0;
 
 var font = new FontFace('premier', 'url(./fonts/Premier2019.ttf)');
-font.load().then(function(font) {
-    document.fonts.add(font);
-    // This is the stupidest and dirtiest thing Ive done in a while but oh well. It works.
-    // Calls the main game loop every 100 ms
-    setInterval(draw, 100);
-})
 
 var walls = [];
 function spawnWalls() {

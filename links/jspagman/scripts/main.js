@@ -39,3 +39,10 @@ function keyDownHandler(e) {
 
 spawnWalls();
 spawnDots();
+
+font.load().then(function(font) {
+    document.fonts.add(font);
+    // This is the stupidest and dirtiest thing Ive done in a while but oh well. It works.
+    // Calls the main game loop every 100 ms
+    setInterval(draw, 100);
+})
