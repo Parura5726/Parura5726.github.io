@@ -1,0 +1,3 @@
+[submodule "./links/jstetris"]
+path = ./links/jstetris 
+url = git://gitlab.com/personalprojects17/jstetris.git
