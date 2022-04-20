@@ -103,7 +103,7 @@ class piece {
                     piece.blocks = [new block(blockSize, -blockSize, color), new block(0, -blockSize, color), new block(0, 0, color), new block(0, blockSize, color)];
                     break;
                 case 3:
-                    piece.blocks = [new block(blockSize, -blockSize, color), new block(-blockSize, 0, color), new block(0, 0, color), new block(blockSize, 0, color)];
+                    piece.blocks = [new block(-blockSize, -blockSize, color), new block(-blockSize, 0, color), new block(0, 0, color), new block(blockSize, 0, color)];
                     break;
             }
             break;
