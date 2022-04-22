@@ -8,11 +8,11 @@ function block(x, y, color) {
 // Template for a piece
 class piece {
     type = 0;
-    constructor(x, y, type) {
+    constructor(x, y, type, rotation) {
         this.x = x;
         this.y = y;
         this.blocks = [];
-        this.rotation;
+        this.rotation = rotation;
         this.type = type;
 
         piece.rotate(this, 0, type);

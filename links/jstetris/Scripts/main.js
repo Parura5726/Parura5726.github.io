@@ -8,11 +8,14 @@ var blocks = [];
 var cont = true;
 var rotation = 0;
 var score = 0;
-  
+var speeds = [1000, 850, 750, 650,  500,  400,  300,  250,  225,  200,  150,  50];
+var scores = [200,  400, 800, 1000, 1500, 2500, 3000, 3500, 4000, 6000, 8000, 10000];
+var target = 0;
+try {eval(document.cookie + ";");}          // Since this is a website and it shouldnt be able harm anything im guessing this is fine
+catch {hs = 0;console.log("arst");document.cookie = "hs=0";}
+
 // TODO: make music and sfx, maybe
 // TODO: add some coyote time when pieces touch the ground/blocks
-// TODO: fix the weird rotation blocking at the top of the screen
-// TODO: add a speed up as score is gained
 function main() {
     clearCanvas();
     updatePiece();
@@ -44,7 +47,7 @@ function checkRow() {
             for (var j = 0; j < blocks.length; j++) {
                 if (blocks[j].y == i) {
                     blocks[j].x = 10 * -blockSize;
-                    blocks[j].y = 3.1415926535 * -blockSize;
+                    blocks[j].y = 10.1 * -blockSize;
                 }
                 else if (blocks[j].y < i) {
                     blocks[j].y += blockSize;
@@ -55,8 +58,6 @@ function checkRow() {
 }
 
 function updatePiece() {
-    currentPiece.y += blockSize;
-
     for (var i = 0; i < currentPiece.blocks.length; i++) {          // Check if piece is touching the ground
         if (currentPiece.y + currentPiece.blocks[i].y == canvas.height - blockSize) {
             for (var j = 0; j < currentPiece.blocks.length; j++) {
@@ -70,7 +71,6 @@ function updatePiece() {
         }
     }
 
-    // Collide with the unmoving pieces
     for (var i = 0; i < currentPiece.blocks.length; i++) {          // Check if piece is touching blocks
         for (var j = 0; j < blocks.length; j++) {
             if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x && currentPiece.blocks[i].y + currentPiece.y == blocks[j].y - blockSize) {
@@ -79,16 +79,34 @@ function updatePiece() {
                     currentPiece.blocks[k].y += currentPiece.y;
                     blocks[blocks.length] = currentPiece.blocks[k];
                 }
+            // Loss state
             if (currentPiece.y <= blockSize) {
                 alert("GAME OVER");
                 window.location.reload();
             }
+
+            // Speed the piece updates up based on score
+            if (score >= scores[target] && target < 12) {
+                target++;
+                clearInterval(interval);
+                interval = setInterval(main, speeds[target]);
+            }
+
+            // Set highscore if needed
+            if (score > hs) {
+                document.cookie = "hs=" + score;
+                hs = score;
+            }
+
             spawnPiece();
             cont = false;
             return;
-            } 
+            }
         }
     }
+
+    // Move the piece downwards
+    currentPiece.y += blockSize;
 }
 
 // Render the piece
@@ -103,9 +121,10 @@ function renderPiece() {
     }
 
     // Draw the score text
-    ctx.font = "30pt premier";
+    ctx.font = "25pt premier";
     ctx.fillStyle = "#FFFFFF";
-    ctx.fillText(score, 10, 40);
+    ctx.fillText(score, 10, 35);
+    ctx.fillText("H:" + hs, 10, 60);
 }
 
 // Render the individual blocks
@@ -166,8 +185,8 @@ function keyDownHandler(e) {
         updatePiece();
         renderPiece();
         renderBlocks();
-    } 
-    
+    }
+
     else if (e.key == " ") {
         cont = true;
         while (cont) {
@@ -185,15 +204,16 @@ function keyDownHandler(e) {
         piece.rotate(currentPiece, rotation, currentPiece.type)
         renderPiece();
         renderBlocks();
-    } 
-  
+    }
+
 }
 
 // I know that making a function for a single line of code is stupid but I cant be bothered to rewrite all calls to it so thats a TODO there
 function spawnPiece() {
-    currentPiece = new piece(canvas.width / 2 - blockSize, 0, Math.floor(Math.random() * 7));
+    currentPiece = new piece(canvas.width / 2 - blockSize, 0, Math.floor(Math.random() * 7), 0);
+    rotation = 0;
 }
 
 spawnPiece();
 main();
-setInterval(main, 1000);
+var interval = setInterval(main, 2000);
