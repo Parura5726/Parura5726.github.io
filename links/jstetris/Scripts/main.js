@@ -12,7 +12,8 @@ var speeds = [1000, 850, 750, 650,  500,  400,  300,  250,  225,  200,  150,  50
 var scores = [200,  400, 800, 1000, 1500, 2500, 3000, 3500, 4000, 6000, 8000, 10000];
 var target = 0;
 try {eval(document.cookie + ";");}          // Since this is a website and it shouldnt be able harm anything im guessing this is fine
-catch {hs = 0;console.log("arst");document.cookie = "hs=0";}
+catch {hs = 0;}
+document.cookie = "hs=0";
 
 // TODO: make music and sfx, maybe
 // TODO: add some coyote time when pieces touch the ground/blocks
