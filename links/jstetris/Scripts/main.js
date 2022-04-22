@@ -14,6 +14,7 @@ var target = 0;
 try {eval(document.cookie + ";");}          // Since this is a website and it shouldnt be able harm anything im guessing this is fine
 catch {hs = 0;}
 document.cookie = "hs=0";
+if (hs == undefined) hs = 0;
 
 // TODO: make music and sfx, maybe
 // TODO: add some coyote time when pieces touch the ground/blocks
