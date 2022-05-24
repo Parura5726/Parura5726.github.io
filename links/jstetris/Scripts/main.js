@@ -4,6 +4,7 @@ var font = new FontFace('premier', 'url(./fonts/Premier2019.ttf)');
 
 var blockSize = 30;
 var currentPiece;
+var projectedPiece;
 var blocks = [];
 var cont = true;
 var rotation = 0;
@@ -12,6 +13,7 @@ var speeds = [1000, 850, 750, 650,  500,  400,  300,  250,  225,  200,  150,  50
 var scores = [200,  400, 800, 1000, 1500, 2500, 3000, 3500, 4000, 6000, 8000, 10000];
 var target = 0;
 var hs;
+var lastMove = Date.now();
 try {eval(document.cookie + ";");}          // Since this is a website and it shouldnt be able harm anything im guessing this is fine
 catch {hs = 0};
 if (hs == undefined) {
@@ -19,13 +21,48 @@ if (hs == undefined) {
     document.cookie = "hs=0";
 }
 
+// TODO: fix random cookie clearing
+// TODO: create other timer than setInterval
 // TODO: make music and sfx, maybe
 function main() {
     clearCanvas();
     updatePiece();
-    checkRow();
+    projectPiece();
     renderPiece();
     renderBlocks();
+}
+
+function projectPiece() {
+    projectedPiece = currentPiece;
+    var x = currentPiece.x;             // This is so stupid that it generates its own gravitational field
+    var y = currentPiece.y;
+    cont = true;
+
+    while (cont) {
+        projectedPiece.y += blockSize;
+        for (var i = 0; i < projectedPiece.blocks.length; i++) {          // Check if piece is touching the ground
+            if (projectedPiece.y + projectedPiece.blocks[i].y == canvas.height - blockSize) {
+                cont = false;
+            }
+
+            for (var j = 0; j < blocks.length; j++) {                     // Check if piece is touching blocks
+                if (projectedPiece.blocks[i].x + projectedPiece.x == blocks[j].x && projectedPiece.blocks[i].y + projectedPiece.y == blocks[j].y - blockSize) {
+                    cont = false
+                }
+            }
+        }
+    }
+
+    ctx.fillStyle = "#AAAAAA";
+    for (var i = 0; i < projectedPiece.blocks.length; i++) {
+        ctx.beginPath();
+        ctx.rect(projectedPiece.blocks[i].x + projectedPiece.x, projectedPiece.blocks[i].y + projectedPiece.y, blockSize, blockSize)
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    currentPiece.x = x;
+    currentPiece.y = y;
 }
 
 // Clear the canvas to black
@@ -59,9 +96,21 @@ function checkRow() {
             }
         }
     }
+    // Set highscore if needed
+    if (score > hs) {
+        document.cookie = "hs=" + score;
+        hs = score;
+    }
+    // Speed the piece updates up based on score
+    if (score >= scores[target] && target < 12) {
+        target++;
+        clearInterval(interval);
+        interval = setInterval(main, speeds[target]);
+    }
 }
 
 function updatePiece() {
+    cont = true;
     for (var i = 0; i < currentPiece.blocks.length; i++) {          // Check if piece is touching the ground
         if (currentPiece.y + currentPiece.blocks[i].y == canvas.height - blockSize) {
             for (var j = 0; j < currentPiece.blocks.length; j++) {
@@ -71,44 +120,34 @@ function updatePiece() {
             }
             spawnPiece();
             cont = false;
+            checkRow();
             return;
         }
     }
 
     for (var i = 0; i < currentPiece.blocks.length; i++) {          // Check if piece is touching blocks
         for (var j = 0; j < blocks.length; j++) {
-            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x && currentPiece.blocks[i].y + currentPiece.y == blocks[j].y - blockSize) {
+            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x && currentPiece.blocks[i].y + currentPiece.y == blocks[j].y - blockSize
+            && Date.now() - lastMove > 100) {                          // Coyote time
                 for (var k = 0; k < currentPiece.blocks.length; k++) {
                     currentPiece.blocks[k].x += currentPiece.x;
                     currentPiece.blocks[k].y += currentPiece.y;
                     blocks[blocks.length] = currentPiece.blocks[k];
                 }
-            // Loss state
-            if (currentPiece.y <= blockSize) {
-                alert("GAME OVER");
-                window.location.reload();
-            }
-
-            // Speed the piece updates up based on score
-            if (score >= scores[target] && target < 12) {
-                target++;
-                clearInterval(interval);
-                interval = setInterval(main, speeds[target]);
-            }
-
-            // Set highscore if needed
-            if (score > hs) {
-                document.cookie = "hs=" + score;
-                hs = score;
-            }
-
-            spawnPiece();
-            cont = false;
-            return;
+                // Loss state
+                if (currentPiece.y <= blockSize) {
+                    alert("GAME OVER");
+                    window.location.reload();
+                }
+                spawnPiece();
+                cont = false;
+                checkRow();
+                return;
             }
         }
     }
 
+    if (Date.now() - lastMove < 100) return;
     // Move the piece downwards
     currentPiece.y += blockSize;
 }
@@ -147,6 +186,7 @@ document.addEventListener("keydown", keyDownHandler, false);
 function keyDownHandler(e) {
     var canMove = true;
     if (e.key == "ArrowLeft" || e.key == "a") {
+        lastMove = Date.now();
         for (var i = 0; i < currentPiece.blocks.length; i++) {
             if (currentPiece.x + currentPiece.blocks[i].x == 0) canMove = false;
 
@@ -160,12 +200,14 @@ function keyDownHandler(e) {
         if (canMove){
             currentPiece.x -= blockSize;
             clearCanvas();
+            projectPiece();
             renderPiece();
             renderBlocks();
         }
     }
 
     else if (e.key == "ArrowRight" || e.key == "d") {
+        lastMove = Date.now();
         for (var i = 0; i < currentPiece.blocks.length; i++) {
             if (currentPiece.x + currentPiece.blocks[i].x == canvas.width - blockSize) canMove = false;
 
@@ -179,6 +221,7 @@ function keyDownHandler(e) {
         if (canMove){
             currentPiece.x += blockSize;
             clearCanvas();
+            projectPiece();
             renderPiece();
             renderBlocks();
         }
@@ -187,6 +230,7 @@ function keyDownHandler(e) {
     else if (e.key == "ArrowDown" || e.key == "s") {
         clearCanvas();
         updatePiece();
+        projectPiece();
         renderPiece();
         renderBlocks();
     }
@@ -197,15 +241,18 @@ function keyDownHandler(e) {
             updatePiece();
         }
         clearCanvas();
+        projectPiece();
         renderPiece();
         renderBlocks();
     }
 
     else if (e.key == "ArrowUp" || e.key == "w") {
+        lastMove = Date.now();
         clearCanvas();
         if (rotation < 3) rotation++;
         else rotation = 0;
         piece.rotate(currentPiece, rotation, currentPiece.type)
+        projectPiece();
         renderPiece();
         renderBlocks();
     }
@@ -220,4 +267,4 @@ function spawnPiece() {
 
 spawnPiece();
 main();
-var interval = setInterval(main, 2000);
+var interval = setInterval(main, 2000, 1);
