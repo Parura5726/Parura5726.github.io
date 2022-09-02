@@ -83,7 +83,7 @@ function checkRow() {
                 blocksInRow++;
             }
         }
-        if (blocksInRow == canvas.width / blockSize) {
+        if (blocksInRow >= canvas.width / blockSize) {
             score += 100;
             for (var j = 0; j < blocks.length; j++) {
                 if (blocks[j].y == i) {
