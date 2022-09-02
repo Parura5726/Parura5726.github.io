@@ -109,7 +109,7 @@ class piece {
             break;
 
         case 6:                                     // c u b
-            var color = "#333333";
+            var color = "#FFA500";
             piece.blocks = [new block(0, 0, color), new block (blockSize, 0, color), new block(0, blockSize, color), new block(blockSize, blockSize, color)];
             break;
     }
