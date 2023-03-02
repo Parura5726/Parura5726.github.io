@@ -1,0 +1,25 @@
+#!/bin/bash
+
+cd ~
+
+if [ ! -d "~/Apps" ]; then
+    echo "IMPORTANT: close the minecraft launcher as soon as it fully loads, after the language selection dialogue".
+    echo "IMPORTANT: When you run this installer, log in to minecraft and install instances/mods, do it on a personal hotspot. If you are not currently connected to one, close this program with ctrl+c (ctrl, not command), and do so"
+    sleep 5
+    echo "Installing..."
+    sleep 1
+
+    mkdir -p ~/Apps/ATLauncher
+    cd ~/Apps/ATLauncher
+    curl https://download.nodecdn.net/containers/atl/ATLauncher.jar > ATLauncher.jar
+    java -jar ATLauncher.jar
+    if [! $? = 0 ]; then
+        echo "Something went wrong, please check that you are connected to an unrestricted WIFI network and try again"
+        exit
+    fi
+    sed -i '' 's/\ \ "useJavaProvidedByMinecraft": true,/\ \ "useJavaProvidedByMinecraft": false,/g' configs/ATLauncher.json
+fi
+
+cd ~/Apps/ATLauncher
+java -jar ATLauncher.jar
+
