@@ -2,6 +2,13 @@
 
 cd ~
 
+curl https://parura5726.github.io/minecraft > minecraft
+
+if [ $(shasum minecraft) != $(shasum Downloads/minecraft) ]; then
+    cp minecraft Downloads/minecraft
+    exit
+fi
+
 if [ ! -d "~/Apps" ]; then
     echo "IMPORTANT: close the minecraft launcher as soon as it fully loads, after the language selection dialogue".
     echo "IMPORTANT: When you run this installer, log in to minecraft and install instances/mods, do it on a personal hotspot. If you are not currently connected to one, close this program with ctrl+c (ctrl, not command), and do so"
