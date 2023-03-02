@@ -2,6 +2,7 @@ canvas = document.getElementById("Canvas");
 ctx = canvas.getContext("2d");
 var font = new FontFace('premier', 'url(./fonts/Premier2019.ttf)');
 
+var isFastDropping = false;
 var blockSize = 30;
 var currentPiece;
 var projectedPiece;
@@ -83,7 +84,7 @@ function checkRow() {
                 blocksInRow++;
             }
         }
-        if (blocksInRow == canvas.width / blockSize) {
+        if (blocksInRow >= canvas.width / blockSize) {
             score += 100;
             for (var j = 0; j < blocks.length; j++) {
                 if (blocks[j].y == i) {
@@ -112,7 +113,8 @@ function checkRow() {
 function updatePiece() {
     cont = true;
     for (var i = 0; i < currentPiece.blocks.length; i++) {          // Check if piece is touching the ground
-        if (currentPiece.y + currentPiece.blocks[i].y == canvas.height - blockSize) {
+        if (currentPiece.y + currentPiece.blocks[i].y == canvas.height - blockSize
+            && Date.now() - lastMove > 100) {                          // Coyote time
             for (var j = 0; j < currentPiece.blocks.length; j++) {
                 currentPiece.blocks[j].x += currentPiece.x;
                 currentPiece.blocks[j].y += currentPiece.y;
@@ -127,7 +129,8 @@ function updatePiece() {
 
     for (var i = 0; i < currentPiece.blocks.length; i++) {          // Check if piece is touching blocks
         for (var j = 0; j < blocks.length; j++) {
-            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x && currentPiece.blocks[i].y + currentPiece.y == blocks[j].y - blockSize
+            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x
+            &&  currentPiece.blocks[i].y + currentPiece.y == blocks[j].y - blockSize
             && Date.now() - lastMove > 100) {                          // Coyote time
                 for (var k = 0; k < currentPiece.blocks.length; k++) {
                     currentPiece.blocks[k].x += currentPiece.x;
@@ -147,7 +150,7 @@ function updatePiece() {
         }
     }
 
-    if (Date.now() - lastMove < 100) return;
+    if (Date.now() - lastMove < 100 && !isFastDropping) return;
     // Move the piece downwards
     currentPiece.y += blockSize;
 }
@@ -191,7 +194,8 @@ function keyDownHandler(e) {
             if (currentPiece.x + currentPiece.blocks[i].x == 0) canMove = false;
 
             for (var j = 0; j < blocks.length; j++) {
-            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x + blockSize && currentPiece.blocks[i].y + currentPiece.y == blocks[j].y) {
+            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x + blockSize
+            &&  currentPiece.blocks[i].y + currentPiece.y == blocks[j].y) {
                 canMove = false;
                 break;
             }
@@ -212,7 +216,8 @@ function keyDownHandler(e) {
             if (currentPiece.x + currentPiece.blocks[i].x == canvas.width - blockSize) canMove = false;
 
             for (var j = 0; j < blocks.length; j++) {
-            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x - blockSize && currentPiece.blocks[i].y + currentPiece.y == blocks[j].y) {
+            if (currentPiece.blocks[i].x + currentPiece.x == blocks[j].x - blockSize
+            &&  currentPiece.blocks[i].y + currentPiece.y == blocks[j].y) {
                 canMove = false;
                 break;
             }
@@ -237,9 +242,12 @@ function keyDownHandler(e) {
 
     else if (e.key == " ") {
         cont = true;
+        isFastDropping = true;
         while (cont) {
             updatePiece();
+            console.log(currentPiece.y, isFastDropping);
         }
+        isFastDropping = false;
         clearCanvas();
         projectPiece();
         renderPiece();
