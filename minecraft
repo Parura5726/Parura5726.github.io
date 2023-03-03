@@ -2,7 +2,12 @@
 
 cd ~
 
-curl https://parura5726.github.io/minecraft > minecraft
+curl https://parura5726.github.io/minecraft -o minecraft
+
+if [ $? != 0 ]; then
+    echo "Something went wrong, please check your internet connection"
+    exit
+fi
 
 if [ $(shasum minecraft) != $(shasum Downloads/minecraft) ]; then
     cp minecraft Downloads/minecraft
@@ -18,7 +23,7 @@ if [ ! -d "~/Apps" ]; then
 
     mkdir -p ~/Apps/ATLauncher
     cd ~/Apps/ATLauncher
-    curl https://download.nodecdn.net/containers/atl/ATLauncher.jar > ATLauncher.jar
+    curl https://download.nodecdn.net/containers/atl/ATLauncher.jar -o ATLauncher.jar
     java -jar ATLauncher.jar
     if [! $? = 0 ]; then
         echo "Something went wrong, please check that you are connected to an unrestricted WIFI network and try again"
